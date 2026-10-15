@@ -1,4 +1,9 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0啟動本機服務.ps1"
+echo Starting local Add-Deduct APP...
+echo If this window reports an error, please take a screenshot.
+powershell.exe -NoProfile -File "%~dp0start-local.ps1"
+echo.
+echo Local server has stopped or failed to start.
+pause
