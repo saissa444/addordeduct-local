@@ -1,0 +1,26 @@
+name: Build portable Windows EXE
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'index.html'
+      - '.github/workflows/windows-exe.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish portable Windows EXE
+        run: dotnet publish desktop/AddOrDeductLocal.csproj -c Release -r win-x64 -o dist /p:PublishSingleFile=true /p:SelfContained=true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AddOrDeductLocal-Windows-x64
+          path: dist/AddOrDeductLocal.exe
+          if-no-files-found: error
