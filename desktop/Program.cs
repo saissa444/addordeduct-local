@@ -37,14 +37,24 @@ while (true)
         client.ReceiveTimeout = 5000;
         client.SendTimeout = 5000;
         using var network = client.GetStream();
-        using var reader = new StreamReader(network, Encoding.ASCII, false, 1024, leaveOpen: true);
-        string? request = await reader.ReadLineAsync();
+        // Read header byte-by-byte so POST payload bytes remain in the network stream.
+        using var headerBuffer = new MemoryStream();
+        byte[] one = new byte[1];
+        while (headerBuffer.Length < 16384)
+        {
+            if (await network.ReadAsync(one) == 0) break;
+            headerBuffer.WriteByte(one[0]);
+            byte[] h = headerBuffer.GetBuffer();
+            int n = (int)headerBuffer.Length;
+            if (n >= 4 && h[n-4] == 13 && h[n-3] == 10 && h[n-2] == 13 && h[n-1] == 10) break;
+        }
+        string headerText = Encoding.ASCII.GetString(headerBuffer.ToArray());
+        string[] lines = headerText.Split("\r\n", StringSplitOptions.None);
+        string request = lines[0];
         if (string.IsNullOrWhiteSpace(request)) continue;
         var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        while (true)
+        foreach (string header in lines.Skip(1))
         {
-            string? header = await reader.ReadLineAsync();
-            if (header is null || header.Length == 0) break;
             int colon = header.IndexOf(':');
             if (colon > 0) headers[header.Substring(0, colon).Trim()] = header.Substring(colon + 1).Trim();
         }
@@ -87,7 +97,7 @@ while (true)
                         string tmp = filename + ".tmp";
                         await File.WriteAllBytesAsync(tmp, payload);
                         File.Move(tmp, filename, true);
-                        status = "200 OK"; body = Encoding.UTF8.GetBytes("{\\\"ok\\\":true}");
+                        status = "200 OK"; body = Encoding.UTF8.GetBytes("{}");
                     }
                 }
                 else if (method == "DELETE")
