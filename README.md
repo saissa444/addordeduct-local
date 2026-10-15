@@ -22,3 +22,11 @@
 - 本版本尚未在使用者電腦完成實機測試。正式使用學生資料前，先用測試名冊驗證「匯入 → 關閉 Chrome → 重新開啟 → 自動還原」。
 
 原本線上版仍在 https://saissa444.github.io/addordeduct/ ，不受影響。
+
+
+## Windows EXE：資料持久保存（新版）
+Windows EXE 版本改為透過本機 API，將名冊、加扣分範本及登錄紀錄寫入目前 Windows 使用者的：
+`%LOCALAPPDATA%\AddOrDeductLocal\`
+（`roster.json`、`options.json`、`templateBytes.json`、`records.json`）。
+
+請從 GitHub Actions 的 **Build portable Windows EXE** 最新成功執行紀錄下載 Artifacts，**舊版 EXE 不會自動更新**。第一次使用新版仍需重新匯入兩份 Excel；舊版 Chrome IndexedDB 資料不會自動轉移。關閉 APP 後重新開啟，應會從 Windows 資料夾還原。請先用測試資料驗證。不要刪除上述資料夾；電腦重設、切換 Windows 使用者或學校政策清除 AppData 仍可能刪除資料。請定期匯出 Excel 並另行備份，依校方個資規範管理。
