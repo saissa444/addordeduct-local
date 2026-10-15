@@ -1,20 +1,4 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-where py >nul 2>nul
-if %errorlevel%==0 (
-  start "" "http://127.0.0.1:8765/"
-  py -3 -m http.server 8765 --bind 127.0.0.1
-  goto :end
-)
-where python >nul 2>nul
-if %errorlevel%==0 (
-  start "" "http://127.0.0.1:8765/"
-  python -m http.server 8765 --bind 127.0.0.1
-  goto :end
-)
-echo This app needs Python installed to start the local server.
-echo Download Python from https://www.python.org/downloads/windows/
-echo During setup select Add Python to PATH.
-pause
-:end
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0啟動本機服務.ps1"
